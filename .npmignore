@@ -1,0 +1,47 @@
+# Source files (dist is included)
+lib/
+tokens/index.ts
+
+# Tests
+**/*.spec.ts
+coverage/
+vitest.config.*
+vitest.setup.*
+
+# Example application
+example/
+
+# Config files
+tsconfig.json
+tsconfig.eslint.json
+eslint.config.*
+.eslintrc*
+.prettierrc*
+.prettierignore
+commitlint.config.*
+
+# Husky & Git hooks
+.husky/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Development & CI
+.git/
+.github/
+.gitignore
+*.log
+
+# Package managers
+pnpm-lock.yaml
+yarn.lock
+package-lock.json
+
+# Misc
+*.tgz
+.env*
+.DS_Store
+Thumbs.db
