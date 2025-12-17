@@ -3,7 +3,7 @@ import { join } from 'path';
 import {
   AngularSSRModule,
   InMemoryCacheStorage,
-} from '@pegasus-heavy/nestjs-angular-ssr';
+} from '@lexmata/nestjs-angular-ssr';
 import { ApiModule } from './api/api.module';
 
 @Module({
@@ -16,13 +16,22 @@ import { ApiModule } from './api/api.module';
       // Path to the Angular browser build
       browserDistFolder: join(process.cwd(), 'angular/dist/example-app/browser'),
 
-      // Bootstrap function that returns the Angular SSR engine
+      // Path to the index.server.html template
+      indexHtml: join(process.cwd(), 'angular/dist/example-app/server/index.server.html'),
+
+      // Bootstrap function that returns the CommonEngine
       bootstrap: async () => {
         // Dynamic import of the Angular SSR server bundle
-        const { default: angularApp } = await import(
-          '../../angular/dist/example-app/server/server.mjs'
-        );
-        return angularApp;
+        const serverPath = join(process.cwd(), 'angular/dist/example-app/server/server.mjs');
+        const { default: commonEngine } = await import(serverPath);
+        return commonEngine;
+      },
+
+      // Angular application bootstrap function (for CommonEngine)
+      angularBootstrap: async () => {
+        const mainServerPath = join(process.cwd(), 'angular/dist/example-app/server/main.server.mjs');
+        const { default: bootstrap } = await import(mainServerPath);
+        return bootstrap;
       },
 
       // Cache configuration

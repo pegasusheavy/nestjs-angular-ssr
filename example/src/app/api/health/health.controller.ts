@@ -1,5 +1,5 @@
 import { Controller, Get, Inject, Optional } from '@nestjs/common';
-import { AngularSSRService } from '@pegasus-heavy/nestjs-angular-ssr';
+import { AngularSSRService } from '@lexmata/nestjs-angular-ssr';
 
 interface HealthStatus {
   status: string;

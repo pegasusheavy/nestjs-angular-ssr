@@ -75,7 +75,7 @@ import { IconComponent, type IconName } from '../../shared/icon.component';
             />
           </a>
           <a
-            href="https://github.com/pegasusheavy/nestjs-angular-ssr"
+            href="https://github.com/Lexmata/nestjs-angular-ssr"
             target="_blank"
             class="btn btn-secondary group"
           >
@@ -140,7 +140,7 @@ import { IconComponent, type IconName } from '../../shared/icon.component';
           </div>
           <pre
             class="p-6 overflow-x-auto text-sm font-mono leading-relaxed"
-          ><code class="text-void-300"><span class="text-ember-400">import</span> {{ '{' }} AngularSSRModule {{ '}' }} <span class="text-ember-400">from</span> <span class="text-golden-400">'&#64;pegasus-heavy/nestjs-angular-ssr'</span>;
+          ><code class="text-void-300"><span class="text-ember-400">import</span> {{ '{' }} AngularSSRModule {{ '}' }} <span class="text-ember-400">from</span> <span class="text-golden-400">'&#64;lexmata/nestjs-angular-ssr'</span>;
 
 <span class="text-void-500">&#64;Module</span>({{ '{' }}
   <span class="text-ember-400">imports</span>: [

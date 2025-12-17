@@ -3,7 +3,7 @@ import { isPlatformServer } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { IconComponent } from '../../shared/icon.component';
 
-// Token matching @pegasus-heavy/nestjs-angular-ssr/tokens
+// Token matching @lexmata/nestjs-angular-ssr/tokens
 const RESPONSE = 'ANGULAR_SSR_RESPONSE';
 
 // Express Response type for SSR

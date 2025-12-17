@@ -66,27 +66,27 @@ import { IconComponent } from './shared/icon.component';
             <p class="text-void-400 text-sm">
               © {{ currentYear }}
               <span class="text-void-50 font-semibold"
-                >Pegasus Heavy Industries LLC</span
+                >Lexmata LLC</span
               >
             </p>
             <span class="hidden sm:inline text-void-500">•</span>
             <p class="text-void-400 text-sm">
               Built with
               <a
-                href="https://github.com/pegasusheavy/nestjs-angular-ssr"
+                href="https://github.com/Lexmata/nestjs-angular-ssr"
                 target="_blank"
                 class="text-ember-500 hover:text-ember-400 transition-colors"
               >
-                &#64;pegasus-heavy/nestjs-angular-ssr
+                &#64;lexmata/nestjs-angular-ssr
               </a>
             </p>
           </div>
           <div class="flex items-center gap-4">
             <a
-              href="https://github.com/pegasusheavy"
+              href="https://github.com/Lexmata"
               target="_blank"
               class="text-void-400 hover:text-void-50 transition-colors"
-              title="Pegasus Heavy Industries on GitHub"
+              title="Lexmata on GitHub"
             >
               <app-icon name="github" [size]="20" />
             </a>

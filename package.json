@@ -1,5 +1,5 @@
 {
-  "name": "@pegasusheavy/nestjs-angular-ssr",
+  "name": "@lexmata/nestjs-angular-ssr",
   "version": "0.1.0",
   "description": "Angular SSR (v19+) module for NestJS framework",
   "main": "dist/index.js",
@@ -31,16 +31,16 @@
     "angular-ssr",
     "express"
   ],
-  "author": "Pegasus Heavy Industries LLC",
+  "author": "Lexmata LLC",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/pegasusheavy/nestjs-angular-ssr.git"
+    "url": "git+https://github.com/Lexmata/nestjs-angular-ssr.git"
   },
   "bugs": {
-    "url": "https://github.com/pegasusheavy/nestjs-angular-ssr/issues"
+    "url": "https://github.com/Lexmata/nestjs-angular-ssr/issues"
   },
-  "homepage": "https://github.com/pegasusheavy/nestjs-angular-ssr#readme",
+  "homepage": "https://github.com/Lexmata/nestjs-angular-ssr#readme",
   "peerDependencies": {
     "@angular/ssr": ">=19.0.0",
     "@nestjs/common": ">=10.0.0",

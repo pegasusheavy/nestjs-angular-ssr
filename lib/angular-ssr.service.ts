@@ -1,25 +1,31 @@
+import { type AngularAppEngine } from '@angular/ssr';
+import { type AngularNodeAppEngine, type CommonEngine } from '@angular/ssr/node';
+import { type Request, type Response } from 'express';
+import { join } from 'path';
+
 import { Inject, Injectable, Logger, OnModuleInit } from '@nestjs/common';
+
 import { InMemoryCacheStorage } from './cache/in-memory-cache-storage';
 import { UrlCacheKeyGenerator } from './cache/url-cache-key-generator';
-import { ANGULAR_SSR_OPTIONS } from './tokens';
-import         {
+import {
   type AngularSSRModuleOptions,
+  type CacheKeyGenerator,
   type CacheOptions,
   type CacheStorage,
-  type CacheKeyGenerator,
 } from './interfaces';
-import         { type AngularAppEngine } from '@angular/ssr';
-import         { type Request, type Response } from 'express';
+import { ANGULAR_SSR_OPTIONS } from './tokens';
 
 /**
  * Default cache expiration time in milliseconds (1 minute)
  */
 export const DEFAULT_CACHE_EXPIRATION_TIME = 60_000;
 
+type AngularEngine = AngularAppEngine | AngularNodeAppEngine | CommonEngine;
+
 @Injectable()
 export class AngularSSRService implements OnModuleInit {
   private readonly logger = new Logger(AngularSSRService.name);
-  private angularApp: AngularAppEngine | null = null;
+  private angularEngine: AngularEngine | null = null;
 
   private readonly cacheEnabled: boolean;
   private readonly cacheStorage: CacheStorage;
@@ -48,7 +54,7 @@ export class AngularSSRService implements OnModuleInit {
 
   async onModuleInit(): Promise<void> {
     try {
-      this.angularApp = await this.options.bootstrap();
+      this.angularEngine = await this.options.bootstrap() as AngularEngine;
       this.logger.log('Angular SSR engine initialized successfully');
     } catch (error) {
       this.logger.error('Failed to initialize Angular SSR engine', error);
@@ -70,10 +76,24 @@ export class AngularSSRService implements OnModuleInit {
   }
 
   /**
+   * Check if the engine is a CommonEngine
+   */
+  private isCommonEngine(engine: AngularEngine): engine is CommonEngine {
+    return engine.constructor.name === 'CommonEngine' || 'render' in engine;
+  }
+
+  /**
+   * Check if the engine is an AngularNodeAppEngine
+   */
+  private isNodeAppEngine(engine: AngularEngine): engine is AngularNodeAppEngine {
+    return engine.constructor.name === 'AngularNodeAppEngine';
+  }
+
+  /**
    * Render the Angular application for the given request
    */
   async render(request: Request, response: Response): Promise<string | null> {
-    if (!this.angularApp) {
+    if (!this.angularEngine) {
       throw new Error('Angular SSR engine not initialized');
     }
 
@@ -91,17 +111,40 @@ export class AngularSSRService implements OnModuleInit {
     }
 
     try {
-      // Create a native Request object for Angular SSR
-      const angularRequest = this.createAngularRequest(request);
+      let html: string | null = null;
 
-      // Render the application
-      const angularResponse = await this.angularApp.handle(angularRequest);
+      if (this.isCommonEngine(this.angularEngine)) {
+        // For CommonEngine, use the render method
+        const documentFilePath = this.options.indexHtml ??
+          join(this.options.browserDistFolder, 'index.server.html');
 
-      if (!angularResponse) {
-        return null;
+        // Get the actual bootstrap function (angularBootstrap returns a Promise that resolves to it)
+        const bootstrap = this.options.angularBootstrap
+          ? await this.options.angularBootstrap()
+          : undefined;
+
+        html = await this.angularEngine.render({
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+          bootstrap,
+          documentFilePath,
+          url,
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          providers: this.options.extraProviders as any,
+        });
+      } else if (this.isNodeAppEngine(this.angularEngine)) {
+        // For AngularNodeAppEngine, pass the Express request directly
+        const angularResponse = await this.angularEngine.handle(request);
+        if (angularResponse) {
+          html = await angularResponse.text();
+        }
+      } else {
+        // For AngularAppEngine, create a fetch API Request
+        const angularRequest = this.createAngularRequest(request);
+        const angularResponse = await (this.angularEngine as AngularAppEngine).handle(angularRequest);
+        if (angularResponse) {
+          html = await angularResponse.text();
+        }
       }
-
-      const html = await angularResponse.text();
 
       // Store in cache
       if (this.cacheEnabled && html) {
@@ -130,9 +173,9 @@ export class AngularSSRService implements OnModuleInit {
    * Get the full URL from the Express request
    */
   private getRequestUrl(request: Request): string {
-    const protocol = request.protocol || 'http';
-    const host = request.get('host') || 'localhost';
-    const originalUrl = request.originalUrl || request.url || '/';
+    const protocol = request.protocol ?? 'http';
+    const host = request.get('host') ?? 'localhost';
+    const originalUrl = request.originalUrl ?? request.url ?? '/';
     return `${protocol}://${host}${originalUrl}`;
   }
 

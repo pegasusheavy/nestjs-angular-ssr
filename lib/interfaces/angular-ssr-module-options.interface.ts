@@ -1,6 +1,7 @@
-import         { type CacheKeyGenerator } from './cache-key-generator.interface';
-import         { type CacheStorage } from './cache-storage.interface';
-import         { type Request, type Response } from 'express';
+import { type Request, type Response } from 'express';
+
+import { type CacheKeyGenerator } from './cache-key-generator.interface';
+import { type CacheStorage } from './cache-storage.interface';
 
 /**
  * Provider type compatible with Angular's StaticProvider
@@ -9,7 +10,8 @@ export interface StaticProvider {
   provide: unknown;
   useValue?: unknown;
   useClass?: unknown;
-  useFactory?: (...args: unknown[]) => unknown;
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
+  useFactory?: Function;
   deps?: unknown[];
   multi?: boolean;
 }
@@ -43,6 +45,13 @@ export interface CacheOptions {
 export type ErrorHandler = (error: Error, request: Request, response: Response) => void;
 
 /**
+ * Angular SSR engine type
+ * Supports AngularAppEngine, AngularNodeAppEngine, or CommonEngine
+ */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type AngularSSREngine = any;
+
+/**
  * Configuration options for the AngularSSRModule
  */
 export interface AngularSSRModuleOptions {
@@ -67,8 +76,18 @@ export interface AngularSSRModuleOptions {
   /**
    * The Angular bootstrap function from the server bundle
    * This is the default export from your Angular SSR server entry
+   * For CommonEngine: returns the CommonEngine instance
+   * For AngularAppEngine/AngularNodeAppEngine: returns the engine instance
    */
-  bootstrap: () => Promise<import('@angular/ssr').AngularAppEngine>;
+  bootstrap: () => Promise<AngularSSREngine>;
+
+  /**
+   * The Angular application bootstrap function for CommonEngine
+   * Required when using CommonEngine
+   * This should be the bootstrapApplication function from your main.server.ts
+   */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  angularBootstrap?: () => Promise<any>;
 
   /**
    * Route path to render the Angular app
@@ -114,15 +133,18 @@ export interface AngularSSRModuleAsyncOptions {
   /**
    * Optional imports for the module configuration
    */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   imports?: any[];
 
   /**
    * Factory function to create module options
    */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   useFactory: (...args: any[]) => Promise<AngularSSRModuleOptions> | AngularSSRModuleOptions;
 
   /**
    * Dependencies to inject into the factory function
    */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   inject?: any[];
 }

@@ -1,4 +1,4 @@
-# @pegasus-heavy/nestjs-angular-ssr
+# @lexmata/nestjs-angular-ssr
 
 <p align="center">
   <img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" />
@@ -12,9 +12,9 @@
 
 <p align="center">
   <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License: MIT" /></a>
-  <a href="https://github.com/pegasusheavy/nestjs-angular-ssr/actions/workflows/ci.yml"><img src="https://github.com/pegasusheavy/nestjs-angular-ssr/actions/workflows/ci.yml/badge.svg" alt="CI" /></a>
-  <a href="https://www.npmjs.com/package/@pegasus-heavy/nestjs-angular-ssr"><img src="https://img.shields.io/npm/v/@pegasus-heavy/nestjs-angular-ssr.svg" alt="npm version" /></a>
-  <a href="https://www.npmjs.com/package/@pegasus-heavy/nestjs-angular-ssr"><img src="https://img.shields.io/npm/dm/@pegasus-heavy/nestjs-angular-ssr.svg" alt="npm downloads" /></a>
+  <a href="https://github.com/Lexmata/nestjs-angular-ssr/actions/workflows/ci.yml"><img src="https://github.com/Lexmata/nestjs-angular-ssr/actions/workflows/ci.yml/badge.svg" alt="CI" /></a>
+  <a href="https://www.npmjs.com/package/@lexmata/nestjs-angular-ssr"><img src="https://img.shields.io/npm/v/@lexmata/nestjs-angular-ssr.svg" alt="npm version" /></a>
+  <a href="https://www.npmjs.com/package/@lexmata/nestjs-angular-ssr"><img src="https://img.shields.io/npm/dm/@lexmata/nestjs-angular-ssr.svg" alt="npm downloads" /></a>
 </p>
 
 ## Description
@@ -33,13 +33,13 @@ A NestJS module that integrates Angular SSR (Server-Side Rendering) for Angular 
 ## Installation
 
 ```bash
-pnpm add @pegasus-heavy/nestjs-angular-ssr
+pnpm add @lexmata/nestjs-angular-ssr
 
 # or with npm
-npm install @pegasus-heavy/nestjs-angular-ssr
+npm install @lexmata/nestjs-angular-ssr
 
 # or with yarn
-yarn add @pegasus-heavy/nestjs-angular-ssr
+yarn add @lexmata/nestjs-angular-ssr
 ```
 
 ## Prerequisites
@@ -57,7 +57,7 @@ Import `AngularSSRModule` in your NestJS application module:
 ```typescript
 import { Module } from '@nestjs/common';
 import { join } from 'path';
-import { AngularSSRModule } from '@pegasus-heavy/nestjs-angular-ssr';
+import { AngularSSRModule } from '@lexmata/nestjs-angular-ssr';
 
 // Import the bootstrap function from your Angular SSR server entry
 import bootstrap from './path-to-angular/server/main.server';
@@ -80,7 +80,7 @@ For more complex setups where you need to inject dependencies:
 ```typescript
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { AngularSSRModule } from '@pegasus-heavy/nestjs-angular-ssr';
+import { AngularSSRModule } from '@lexmata/nestjs-angular-ssr';
 
 @Module({
   imports: [
@@ -174,7 +174,7 @@ bootstrap();
 // src/app/app.module.ts
 import { Module } from '@nestjs/common';
 import { join } from 'path';
-import { AngularSSRModule } from '@pegasus-heavy/nestjs-angular-ssr';
+import { AngularSSRModule } from '@lexmata/nestjs-angular-ssr';
 import { UsersModule } from './api/users/users.module';
 
 // Dynamic import for the Angular SSR engine
@@ -234,7 +234,7 @@ export class UsersController {
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { join } from 'path';
-import { AngularSSRModule, InMemoryCacheStorage } from '@pegasus-heavy/nestjs-angular-ssr';
+import { AngularSSRModule, InMemoryCacheStorage } from '@lexmata/nestjs-angular-ssr';
 import { UsersModule } from './api/users/users.module';
 
 @Module({
@@ -340,7 +340,7 @@ Access Express `Request` and `Response` objects in your Angular components using
 import { Component, Inject, Optional, PLATFORM_ID } from '@angular/core';
 import { isPlatformServer } from '@angular/common';
 import type { Response } from 'express';
-import { RESPONSE } from '@pegasus-heavy/nestjs-angular-ssr/tokens';
+import { RESPONSE } from '@lexmata/nestjs-angular-ssr/tokens';
 
 @Component({
   selector: 'app-not-found',
@@ -365,7 +365,7 @@ export class NotFoundComponent {
 Implement the `CacheStorage` interface for custom caching solutions (e.g., Redis):
 
 ```typescript
-import { CacheStorage, CacheEntry } from '@pegasus-heavy/nestjs-angular-ssr';
+import { CacheStorage, CacheEntry } from '@lexmata/nestjs-angular-ssr';
 
 export class RedisCacheStorage implements CacheStorage {
   constructor(private redis: RedisClient) {}
@@ -399,7 +399,7 @@ Create custom cache keys based on request properties:
 
 ```typescript
 import { Request } from 'express';
-import { CacheKeyGenerator } from '@pegasus-heavy/nestjs-angular-ssr';
+import { CacheKeyGenerator } from '@lexmata/nestjs-angular-ssr';
 
 export class MobileAwareCacheKeyGenerator implements CacheKeyGenerator {
   generateCacheKey(request: Request): string {
@@ -417,7 +417,7 @@ The `AngularSSRService` can be injected to programmatically manage SSR:
 
 ```typescript
 import { Injectable } from '@nestjs/common';
-import { AngularSSRService } from '@pegasus-heavy/nestjs-angular-ssr';
+import { AngularSSRService } from '@lexmata/nestjs-angular-ssr';
 
 @Injectable()
 export class CacheManagementService {
@@ -455,12 +455,12 @@ We welcome contributions! Please see our [Contributing Guide](.github/CONTRIBUTI
 
 ## Support
 
-- 📖 [Documentation](https://github.com/pegasusheavy/nestjs-angular-ssr#readme)
-- 🐛 [Issue Tracker](https://github.com/pegasusheavy/nestjs-angular-ssr/issues)
-- 💬 [Discussions](https://github.com/pegasusheavy/nestjs-angular-ssr/discussions)
+- 📖 [Documentation](https://github.com/Lexmata/nestjs-angular-ssr#readme)
+- 🐛 [Issue Tracker](https://github.com/Lexmata/nestjs-angular-ssr/issues)
+- 💬 [Discussions](https://github.com/Lexmata/nestjs-angular-ssr/discussions)
 
 ## License
 
-MIT License - Copyright (c) 2025 Pegasus Heavy Industries LLC
+MIT License - Copyright (c) 2025 Lexmata LLC
 
 See [LICENSE](LICENSE) for details.

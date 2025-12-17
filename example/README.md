@@ -1,6 +1,6 @@
 # NestJS Angular SSR Example
 
-This is a complete example application demonstrating how to use `@pegasus-heavy/nestjs-angular-ssr` to integrate Angular SSR with NestJS.
+This is a complete example application demonstrating how to use `@lexmata/nestjs-angular-ssr` to integrate Angular SSR with NestJS.
 
 ## Project Structure
 
@@ -131,7 +131,7 @@ The 404 page demonstrates setting HTTP status codes from Angular components:
 
 ```typescript
 // not-found.component.ts
-import { RESPONSE } from '@pegasus-heavy/nestjs-angular-ssr/tokens';
+import { RESPONSE } from '@lexmata/nestjs-angular-ssr/tokens';
 
 constructor(
   @Inject(PLATFORM_ID) private platformId: object,
@@ -187,4 +187,4 @@ pnpm start:dev
 
 ## License
 
-MIT License - Pegasus Heavy Industries LLC
+MIT License - Lexmata LLC
