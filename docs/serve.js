@@ -2,14 +2,14 @@
 
 /**
  * Simple static file server for previewing the GitHub Pages site locally.
- * 
+ *
  * Usage:
  *   node docs/serve.js
  *   # or
  *   cd docs && node serve.js
  *   # or with custom port
  *   PORT=50123 node docs/serve.js
- * 
+ *
  * The server will automatically find an available port starting from 50000.
  */
 
@@ -73,7 +73,7 @@ function createServer() {
   return http.createServer((req, res) => {
     // Parse URL and remove query string
     let urlPath = req.url.split('?')[0];
-    
+
     // Default to index.html
     if (urlPath === '/') {
       urlPath = '/index.html';
@@ -113,7 +113,7 @@ function createServer() {
  */
 async function main() {
   const server = createServer();
-  
+
   // Use PORT env var if set, otherwise find an available port
   let port;
   if (process.env.PORT) {
@@ -131,9 +131,9 @@ async function main() {
   server.listen(port, () => {
     console.log(`
   🚀 Documentation server running!
-  
+
   Local:   http://localhost:${port}
-  
+
   Press Ctrl+C to stop.
     `);
   });
