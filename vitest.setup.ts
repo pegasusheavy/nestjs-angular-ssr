@@ -11,7 +11,7 @@ vi.mock('@nestjs/common', async (importOriginal) => {
       static warn = vi.fn();
       static debug = vi.fn();
       static verbose = vi.fn();
-      
+
       log = vi.fn();
       error = vi.fn();
       warn = vi.fn();
