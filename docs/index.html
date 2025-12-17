@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>@lexmata/nestjs-angular-ssr - Angular SSR for NestJS</title>
+  <meta name="description" content="Seamlessly integrate Angular Server-Side Rendering (SSR) with NestJS. Built-in caching, Express integration, and full Angular 19+ support.">
+  <meta name="keywords" content="nestjs, angular, ssr, server-side rendering, typescript, nodejs">
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="@lexmata/nestjs-angular-ssr">
+  <meta property="og:description" content="Angular SSR module for NestJS framework">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://lexmata.github.io/nestjs-angular-ssr">
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            nest: {
+              50: '#fef2f2',
+              100: '#fee2e2',
+              200: '#fecaca',
+              300: '#fca5a5',
+              400: '#f87171',
+              500: '#ea2845',
+              600: '#e0234e',
+              700: '#be123c',
+              800: '#9f1239',
+              900: '#881337',
+            },
+            angular: {
+              500: '#dd0031',
+              600: '#c3002f',
+            },
+            void: {
+              50: '#f8fafc',
+              100: '#f1f5f9',
+              200: '#e2e8f0',
+              300: '#cbd5e1',
+              400: '#94a3b8',
+              500: '#64748b',
+              600: '#475569',
+              700: '#334155',
+              800: '#1e293b',
+              850: '#172033',
+              900: '#0f172a',
+              950: '#020617',
+            }
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            mono: ['JetBrains Mono', 'Fira Code', 'monospace'],
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+  <!-- Prism.js for syntax highlighting -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet">
+
+  <style>
+    /* Custom scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #1e293b;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #475569;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #64748b;
+    }
+
+    /* Code block styling */
+    pre[class*="language-"] {
+      background: #0f172a !important;
+      border-radius: 0.75rem;
+      margin: 0 !important;
+      padding: 1.5rem !important;
+      font-size: 0.875rem;
+      line-height: 1.7;
+    }
+
+    code[class*="language-"] {
+      font-family: 'JetBrains Mono', monospace !important;
+    }
+
+    .token.keyword { color: #c792ea !important; }
+    .token.string { color: #c3e88d !important; }
+    .token.function { color: #82aaff !important; }
+    .token.class-name { color: #ffcb6b !important; }
+    .token.decorator { color: #ff5370 !important; }
+    .token.comment { color: #546e7a !important; }
+    .token.operator { color: #89ddff !important; }
+    .token.punctuation { color: #89ddff !important; }
+
+    /* Gradient text */
+    .gradient-text {
+      background: linear-gradient(135deg, #ea2845 0%, #ff6b6b 50%, #dd0031 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    /* Hero background pattern */
+    .hero-pattern {
+      background-image:
+        radial-gradient(ellipse 80% 50% at 50% -20%, rgba(234, 40, 69, 0.15), transparent),
+        radial-gradient(ellipse 60% 40% at 80% 60%, rgba(221, 0, 49, 0.08), transparent);
+    }
+
+    /* Floating animation */
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-10px); }
+    }
+    .float-animation {
+      animation: float 6s ease-in-out infinite;
+    }
+
+    /* Glow effect */
+    .glow {
+      box-shadow: 0 0 40px rgba(234, 40, 69, 0.3);
+    }
+
+    /* Feature card hover */
+    .feature-card {
+      transition: all 0.3s ease;
+    }
+    .feature-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    }
+
+    /* Copy button */
+    .copy-btn {
+      opacity: 0;
+      transition: opacity 0.2s ease;
+    }
+    .code-block:hover .copy-btn {
+      opacity: 1;
+    }
+  </style>
+</head>
+<body class="bg-void-950 text-void-100 font-sans antialiased">
+
+  <!-- Navigation -->
+  <nav class="fixed top-0 left-0 right-0 z-50 bg-void-950/80 backdrop-blur-xl border-b border-void-800/50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+        <div class="flex items-center gap-3">
+          <div class="flex items-center gap-2">
+            <svg class="w-8 h-8 text-nest-500" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+            </svg>
+            <span class="font-bold text-lg text-white">@lexmata/nestjs-angular-ssr</span>
+          </div>
+        </div>
+        <div class="hidden md:flex items-center gap-8">
+          <a href="#features" class="text-void-300 hover:text-white transition-colors text-sm font-medium">Features</a>
+          <a href="#installation" class="text-void-300 hover:text-white transition-colors text-sm font-medium">Installation</a>
+          <a href="#usage" class="text-void-300 hover:text-white transition-colors text-sm font-medium">Usage</a>
+          <a href="#api" class="text-void-300 hover:text-white transition-colors text-sm font-medium">API</a>
+          <a href="https://github.com/Lexmata/nestjs-angular-ssr" target="_blank" class="flex items-center gap-2 bg-void-800 hover:bg-void-700 px-4 py-2 rounded-lg transition-colors text-sm font-medium">
+            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+            GitHub
+          </a>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <section class="hero-pattern min-h-screen flex items-center pt-16">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+      <div class="text-center">
+        <!-- Logos -->
+        <div class="flex items-center justify-center gap-6 mb-10">
+          <div class="float-animation">
+            <img src="https://nestjs.com/img/logo-small.svg" alt="NestJS" class="w-20 h-20 md:w-28 md:h-28">
+          </div>
+          <div class="text-void-500 text-4xl md:text-5xl font-light">+</div>
+          <div class="float-animation" style="animation-delay: 0.5s;">
+            <svg class="w-20 h-20 md:w-28 md:h-28" viewBox="0 0 250 250" fill="#dd0031">
+              <path d="M125 30L31.9 63.2l14.2 123.1L125 230l78.9-43.7 14.2-123.1z"/>
+              <path fill="#c3002f" d="M125 30v22.2-.1V230l78.9-43.7 14.2-123.1L125 30z"/>
+              <path fill="#fff" d="M125 52.1L66.8 182.6h21.7l11.7-29.2h49.4l11.7 29.2H183L125 52.1zm17 83.3h-34l17-40.9 17 40.9z"/>
+            </svg>
+          </div>
+        </div>
+
+        <!-- Title -->
+        <h1 class="text-4xl md:text-6xl lg:text-7xl font-extrabold tracking-tight mb-6">
+          <span class="gradient-text">Angular SSR</span>
+          <br>
+          <span class="text-white">for NestJS</span>
+        </h1>
+
+        <!-- Subtitle -->
+        <p class="text-lg md:text-xl text-void-300 max-w-3xl mx-auto mb-10 leading-relaxed">
+          Seamlessly integrate Angular Server-Side Rendering with your NestJS backend.
+          Built for <span class="text-nest-400 font-semibold">Angular 19+</span> with built-in caching,
+          Express integration, and zero configuration required.
+        </p>
+
+        <!-- Badges -->
+        <div class="flex flex-wrap justify-center gap-3 mb-10">
+          <img src="https://img.shields.io/npm/v/@lexmata/nestjs-angular-ssr.svg?style=flat-square&color=ea2845" alt="npm version">
+          <img src="https://img.shields.io/npm/dm/@lexmata/nestjs-angular-ssr.svg?style=flat-square&color=ea2845" alt="npm downloads">
+          <img src="https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square" alt="License">
+          <img src="https://img.shields.io/badge/Angular-19+-dd0031.svg?style=flat-square" alt="Angular 19+">
+          <img src="https://img.shields.io/badge/NestJS-10+-e0234e.svg?style=flat-square" alt="NestJS 10+">
+        </div>
+
+        <!-- CTA Buttons -->
+        <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+          <a href="#installation" class="w-full sm:w-auto px-8 py-4 bg-nest-600 hover:bg-nest-500 text-white font-semibold rounded-xl transition-all hover:shadow-lg hover:shadow-nest-600/30 flex items-center justify-center gap-2">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+            Get Started
+          </a>
+          <a href="https://github.com/Lexmata/nestjs-angular-ssr" target="_blank" class="w-full sm:w-auto px-8 py-4 bg-void-800 hover:bg-void-700 text-white font-semibold rounded-xl transition-all border border-void-700 flex items-center justify-center gap-2">
+            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+            View on GitHub
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features Section -->
+  <section id="features" class="py-24 bg-void-900/50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center mb-16">
+        <h2 class="text-3xl md:text-4xl font-bold text-white mb-4">Why Choose This Module?</h2>
+        <p class="text-void-400 text-lg max-w-2xl mx-auto">Everything you need for production-ready Angular SSR with NestJS</p>
+      </div>
+
+      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- Feature 1 -->
+        <div class="feature-card bg-void-850 border border-void-700/50 rounded-2xl p-8">
+          <div class="w-12 h-12 bg-nest-600/20 rounded-xl flex items-center justify-center mb-6">
+            <svg class="w-6 h-6 text-nest-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+          </div>
+          <h3 class="text-xl font-semibold text-white mb-3">Angular v19+ Support</h3>
+          <p class="text-void-400 leading-relaxed">Built specifically for the modern Angular SSR API. Full compatibility with Angular's latest rendering engine.</p>
+        </div>
+
+        <!-- Feature 2 -->
+        <div class="feature-card bg-void-850 border border-void-700/50 rounded-2xl p-8">
+          <div class="w-12 h-12 bg-nest-600/20 rounded-xl flex items-center justify-center mb-6">
+            <svg class="w-6 h-6 text-nest-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+          </div>
+          <h3 class="text-xl font-semibold text-white mb-3">Easy Integration</h3>
+          <p class="text-void-400 leading-relaxed">Simple <code class="text-nest-400 bg-void-800 px-2 py-0.5 rounded">forRoot()</code> and <code class="text-nest-400 bg-void-800 px-2 py-0.5 rounded">forRootAsync()</code> configuration patterns.</p>
+        </div>
+
+        <!-- Feature 3 -->
+        <div class="feature-card bg-void-850 border border-void-700/50 rounded-2xl p-8">
+          <div class="w-12 h-12 bg-nest-600/20 rounded-xl flex items-center justify-center mb-6">
+            <svg class="w-6 h-6 text-nest-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4"/></svg>
+          </div>
+          <h3 class="text-xl font-semibold text-white mb-3">Built-in Caching</h3>
+          <p class="text-void-400 leading-relaxed">Configurable response caching with pluggable storage. Use in-memory or implement Redis, Memcached, and more.</p>
+        </div>
+
+        <!-- Feature 4 -->
+        <div class="feature-card bg-void-850 border border-void-700/50 rounded-2xl p-8">
+          <div class="w-12 h-12 bg-nest-600/20 rounded-xl flex items-center justify-center mb-6">
+            <svg class="w-6 h-6 text-nest-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+          </div>
+          <h3 class="text-xl font-semibold text-white mb-3">Request/Response Injection</h3>
+          <p class="text-void-400 leading-relaxed">Access Express request and response objects directly in your Angular components for full control.</p>
+        </div>
+
+        <!-- Feature 5 -->
+        <div class="feature-card bg-void-850 border border-void-700/50 rounded-2xl p-8">
+          <div class="w-12 h-12 bg-nest-600/20 rounded-xl flex items-center justify-center mb-6">
+            <svg class="w-6 h-6 text-nest-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+          </div>
+          <h3 class="text-xl font-semibold text-white mb-3">Performance Optimized</h3>
+          <p class="text-void-400 leading-relaxed">Static file serving with caching headers, inline critical CSS, and optimized rendering pipeline.</p>
+        </div>
+
+        <!-- Feature 6 -->
+        <div class="feature-card bg-void-850 border border-void-700/50 rounded-2xl p-8">
+          <div class="w-12 h-12 bg-nest-600/20 rounded-xl flex items-center justify-center mb-6">
+            <svg class="w-6 h-6 text-nest-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+          </div>
+          <h3 class="text-xl font-semibold text-white mb-3">Fully Customizable</h3>
+          <p class="text-void-400 leading-relaxed">Custom error handlers, cache key generators, and extensible architecture for any use case.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Installation Section -->
+  <section id="installation" class="py-24">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center mb-16">
+        <h2 class="text-3xl md:text-4xl font-bold text-white mb-4">Installation</h2>
+        <p class="text-void-400 text-lg">Get up and running in seconds</p>
+      </div>
+
+      <!-- Package Manager Tabs -->
+      <div class="bg-void-850 border border-void-700/50 rounded-2xl overflow-hidden">
+        <div class="flex border-b border-void-700/50">
+          <button onclick="showInstall('pnpm')" id="tab-pnpm" class="install-tab flex-1 px-6 py-4 text-sm font-medium text-nest-400 bg-void-800/50 border-b-2 border-nest-500">pnpm</button>
+          <button onclick="showInstall('npm')" id="tab-npm" class="install-tab flex-1 px-6 py-4 text-sm font-medium text-void-400 hover:text-white transition-colors">npm</button>
+          <button onclick="showInstall('yarn')" id="tab-yarn" class="install-tab flex-1 px-6 py-4 text-sm font-medium text-void-400 hover:text-white transition-colors">yarn</button>
+        </div>
+        <div class="p-6">
+          <div id="install-pnpm" class="install-content code-block relative">
+            <pre class="!bg-void-900"><code class="language-bash">pnpm add @lexmata/nestjs-angular-ssr</code></pre>
+            <button onclick="copyCode('pnpm add @lexmata/nestjs-angular-ssr')" class="copy-btn absolute top-4 right-4 p-2 bg-void-700 hover:bg-void-600 rounded-lg transition-colors">
+              <svg class="w-5 h-5 text-void-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+            </button>
+          </div>
+          <div id="install-npm" class="install-content code-block relative hidden">
+            <pre class="!bg-void-900"><code class="language-bash">npm install @lexmata/nestjs-angular-ssr</code></pre>
+            <button onclick="copyCode('npm install @lexmata/nestjs-angular-ssr')" class="copy-btn absolute top-4 right-4 p-2 bg-void-700 hover:bg-void-600 rounded-lg transition-colors">
+              <svg class="w-5 h-5 text-void-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+            </button>
+          </div>
+          <div id="install-yarn" class="install-content code-block relative hidden">
+            <pre class="!bg-void-900"><code class="language-bash">yarn add @lexmata/nestjs-angular-ssr</code></pre>
+            <button onclick="copyCode('yarn add @lexmata/nestjs-angular-ssr')" class="copy-btn absolute top-4 right-4 p-2 bg-void-700 hover:bg-void-600 rounded-lg transition-colors">
+              <svg class="w-5 h-5 text-void-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Requirements -->
+      <div class="mt-8 grid sm:grid-cols-3 gap-4">
+        <div class="bg-void-850/50 border border-void-700/30 rounded-xl p-4 flex items-center gap-3">
+          <div class="w-10 h-10 bg-green-500/20 rounded-lg flex items-center justify-center">
+            <svg class="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+          </div>
+          <div>
+            <div class="text-sm text-void-400">Node.js</div>
+            <div class="font-semibold text-white">≥ 18.0.0</div>
+          </div>
+        </div>
+        <div class="bg-void-850/50 border border-void-700/30 rounded-xl p-4 flex items-center gap-3">
+          <div class="w-10 h-10 bg-nest-500/20 rounded-lg flex items-center justify-center">
+            <svg class="w-5 h-5 text-nest-500" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+          </div>
+          <div>
+            <div class="text-sm text-void-400">NestJS</div>
+            <div class="font-semibold text-white">≥ 10.0.0</div>
+          </div>
+        </div>
+        <div class="bg-void-850/50 border border-void-700/30 rounded-xl p-4 flex items-center gap-3">
+          <div class="w-10 h-10 bg-angular-500/20 rounded-lg flex items-center justify-center">
+            <svg class="w-5 h-5 text-angular-500" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L3.5 6.5l1.3 10.8L12 22l7.2-4.7 1.3-10.8L12 2zm0 2.2l6.1 3.2-.9 7.3L12 18.5l-5.2-3.8-.9-7.3L12 4.2z"/></svg>
+          </div>
+          <div>
+            <div class="text-sm text-void-400">Angular</div>
+            <div class="font-semibold text-white">≥ 19.0.0</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Usage Section -->
+  <section id="usage" class="py-24 bg-void-900/50">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center mb-16">
+        <h2 class="text-3xl md:text-4xl font-bold text-white mb-4">Usage Examples</h2>
+        <p class="text-void-400 text-lg">From basic setup to advanced configurations</p>
+      </div>
+
+      <!-- Basic Setup -->
+      <div class="mb-12">
+        <h3 class="text-xl font-semibold text-white mb-4 flex items-center gap-2">
+          <span class="w-8 h-8 bg-nest-600 rounded-lg flex items-center justify-center text-sm font-bold">1</span>
+          Basic Setup
+        </h3>
+        <p class="text-void-400 mb-4">Import <code class="text-nest-400 bg-void-800 px-2 py-0.5 rounded">AngularSSRModule</code> in your NestJS application module:</p>
+        <div class="code-block relative bg-void-850 border border-void-700/50 rounded-2xl overflow-hidden">
+          <div class="px-4 py-2 bg-void-800/50 border-b border-void-700/50 flex items-center justify-between">
+            <span class="text-sm text-void-400">app.module.ts</span>
+            <button onclick="copyCode(document.getElementById('code-basic').textContent)" class="p-2 hover:bg-void-700 rounded-lg transition-colors">
+              <svg class="w-4 h-4 text-void-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+            </button>
+          </div>
+          <pre id="code-basic"><code class="language-typescript">import { Module } from '@nestjs/common';
+import { join } from 'path';
+import { AngularSSRModule } from '@lexmata/nestjs-angular-ssr';
+
+@Module({
+  imports: [
+    AngularSSRModule.forRoot({
+      browserDistFolder: join(process.cwd(), 'dist/my-app/browser'),
+      bootstrap: async () => {
+        const { default: angularApp } = await import('./angular/server/server.mjs');
+        return angularApp;
+      },
+    }),
+  ],
+})
+export class AppModule {}</code></pre>
+        </div>
+      </div>
+
+      <!-- Async Configuration -->
+      <div class="mb-12">
+        <h3 class="text-xl font-semibold text-white mb-4 flex items-center gap-2">
+          <span class="w-8 h-8 bg-nest-600 rounded-lg flex items-center justify-center text-sm font-bold">2</span>
+          Async Configuration
+        </h3>
+        <p class="text-void-400 mb-4">For more complex setups where you need to inject dependencies:</p>
+        <div class="code-block relative bg-void-850 border border-void-700/50 rounded-2xl overflow-hidden">
+          <div class="px-4 py-2 bg-void-800/50 border-b border-void-700/50 flex items-center justify-between">
+            <span class="text-sm text-void-400">app.module.ts</span>
+            <button onclick="copyCode(document.getElementById('code-async').textContent)" class="p-2 hover:bg-void-700 rounded-lg transition-colors">
+              <svg class="w-4 h-4 text-void-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+            </button>
+          </div>
+          <pre id="code-async"><code class="language-typescript">import { Module } from '@nestjs/common';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { AngularSSRModule, InMemoryCacheStorage } from '@lexmata/nestjs-angular-ssr';
+
+@Module({
+  imports: [
+    ConfigModule.forRoot(),
+    AngularSSRModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: async (configService: ConfigService) => ({
+        browserDistFolder: configService.get('BROWSER_DIST_FOLDER'),
+        bootstrap: async () => {
+          const { default: angularApp } = await import('./angular/server/server.mjs');
+          return angularApp;
+        },
+        cache: {
+          expiresIn: configService.get('SSR_CACHE_TTL', 60000),
+          storage: new InMemoryCacheStorage(),
+        },
+      }),
+      inject: [ConfigService],
+    }),
+  ],
+})
+export class AppModule {}</code></pre>
+        </div>
+      </div>
+
+      <!-- Request/Response Injection -->
+      <div class="mb-12">
+        <h3 class="text-xl font-semibold text-white mb-4 flex items-center gap-2">
+          <span class="w-8 h-8 bg-nest-600 rounded-lg flex items-center justify-center text-sm font-bold">3</span>
+          Request/Response Injection in Angular
+        </h3>
+        <p class="text-void-400 mb-4">Access Express <code class="text-nest-400 bg-void-800 px-2 py-0.5 rounded">Request</code> and <code class="text-nest-400 bg-void-800 px-2 py-0.5 rounded">Response</code> objects in your Angular components:</p>
+        <div class="code-block relative bg-void-850 border border-void-700/50 rounded-2xl overflow-hidden">
+          <div class="px-4 py-2 bg-void-800/50 border-b border-void-700/50 flex items-center justify-between">
+            <span class="text-sm text-void-400">not-found.component.ts</span>
+            <button onclick="copyCode(document.getElementById('code-inject').textContent)" class="p-2 hover:bg-void-700 rounded-lg transition-colors">
+              <svg class="w-4 h-4 text-void-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+            </button>
+          </div>
+          <pre id="code-inject"><code class="language-typescript">import { Component, Inject, Optional, PLATFORM_ID } from '@angular/core';
+import { isPlatformServer } from '@angular/common';
+import type { Response } from 'express';
+import { RESPONSE } from '@lexmata/nestjs-angular-ssr/tokens';
+
+@Component({
+  selector: 'app-not-found',
+  template: '&lt;h1&gt;404 - Page Not Found&lt;/h1&gt;',
+})
+export class NotFoundComponent {
+  constructor(
+    @Inject(PLATFORM_ID) private platformId: object,
+    @Optional() @Inject(RESPONSE) private response: Response | null,
+  ) {
+    // Set proper HTTP status code during SSR
+    if (isPlatformServer(this.platformId) && this.response) {
+      this.response.status(404);
+    }
+  }
+}</code></pre>
+        </div>
+      </div>
+
+      <!-- Custom Cache Storage -->
+      <div>
+        <h3 class="text-xl font-semibold text-white mb-4 flex items-center gap-2">
+          <span class="w-8 h-8 bg-nest-600 rounded-lg flex items-center justify-center text-sm font-bold">4</span>
+          Custom Cache Storage (Redis Example)
+        </h3>
+        <p class="text-void-400 mb-4">Implement the <code class="text-nest-400 bg-void-800 px-2 py-0.5 rounded">CacheStorage</code> interface for custom caching solutions:</p>
+        <div class="code-block relative bg-void-850 border border-void-700/50 rounded-2xl overflow-hidden">
+          <div class="px-4 py-2 bg-void-800/50 border-b border-void-700/50 flex items-center justify-between">
+            <span class="text-sm text-void-400">redis-cache-storage.ts</span>
+            <button onclick="copyCode(document.getElementById('code-redis').textContent)" class="p-2 hover:bg-void-700 rounded-lg transition-colors">
+              <svg class="w-4 h-4 text-void-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+            </button>
+          </div>
+          <pre id="code-redis"><code class="language-typescript">import { CacheStorage, CacheEntry } from '@lexmata/nestjs-angular-ssr';
+
+export class RedisCacheStorage implements CacheStorage {
+  constructor(private redis: RedisClient) {}
+
+  async get(key: string): Promise&lt;CacheEntry | undefined&gt; {
+    const data = await this.redis.get(key);
+    return data ? JSON.parse(data) : undefined;
+  }
+
+  async set(key: string, entry: CacheEntry): Promise&lt;void&gt; {
+    await this.redis.set(key, JSON.stringify(entry));
+  }
+
+  async delete(key: string): Promise&lt;boolean&gt; {
+    return (await this.redis.del(key)) &gt; 0;
+  }
+
+  async clear(): Promise&lt;void&gt; {
+    await this.redis.flushdb();
+  }
+
+  async has(key: string): Promise&lt;boolean&gt; {
+    return (await this.redis.exists(key)) &gt; 0;
+  }
+}</code></pre>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- API Reference Section -->
+  <section id="api" class="py-24">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center mb-16">
+        <h2 class="text-3xl md:text-4xl font-bold text-white mb-4">API Reference</h2>
+        <p class="text-void-400 text-lg">Complete configuration options</p>
+      </div>
+
+      <!-- forRoot Options -->
+      <div class="mb-12">
+        <h3 class="text-xl font-semibold text-white mb-6">forRoot() Options</h3>
+        <div class="bg-void-850 border border-void-700/50 rounded-2xl overflow-hidden">
+          <div class="overflow-x-auto">
+            <table class="w-full text-left">
+              <thead>
+                <tr class="border-b border-void-700/50">
+                  <th class="px-6 py-4 text-sm font-semibold text-void-300">Property</th>
+                  <th class="px-6 py-4 text-sm font-semibold text-void-300">Type</th>
+                  <th class="px-6 py-4 text-sm font-semibold text-void-300">Default</th>
+                  <th class="px-6 py-4 text-sm font-semibold text-void-300">Description</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-void-700/30">
+                <tr>
+                  <td class="px-6 py-4"><code class="text-nest-400 text-sm">browserDistFolder</code></td>
+                  <td class="px-6 py-4 text-sm text-void-400">string</td>
+                  <td class="px-6 py-4 text-sm text-nest-400 font-medium">required</td>
+                  <td class="px-6 py-4 text-sm text-void-400">Path to Angular browser build</td>
+                </tr>
+                <tr>
+                  <td class="px-6 py-4"><code class="text-nest-400 text-sm">bootstrap</code></td>
+                  <td class="px-6 py-4 text-sm text-void-400">() =&gt; Promise&lt;...&gt;</td>
+                  <td class="px-6 py-4 text-sm text-nest-400 font-medium">required</td>
+                  <td class="px-6 py-4 text-sm text-void-400">Function returning Angular SSR engine</td>
+                </tr>
+                <tr>
+                  <td class="px-6 py-4"><code class="text-nest-400 text-sm">indexHtml</code></td>
+                  <td class="px-6 py-4 text-sm text-void-400">string?</td>
+                  <td class="px-6 py-4 text-sm text-void-500">auto-detected</td>
+                  <td class="px-6 py-4 text-sm text-void-400">Path to index.html template</td>
+                </tr>
+                <tr>
+                  <td class="px-6 py-4"><code class="text-nest-400 text-sm">renderPath</code></td>
+                  <td class="px-6 py-4 text-sm text-void-400">string | string[]?</td>
+                  <td class="px-6 py-4 text-sm text-void-500">'*'</td>
+                  <td class="px-6 py-4 text-sm text-void-400">Route path(s) to render</td>
+                </tr>
+                <tr>
+                  <td class="px-6 py-4"><code class="text-nest-400 text-sm">cache</code></td>
+                  <td class="px-6 py-4 text-sm text-void-400">boolean | CacheOptions?</td>
+                  <td class="px-6 py-4 text-sm text-void-500">true</td>
+                  <td class="px-6 py-4 text-sm text-void-400">Cache configuration</td>
+                </tr>
+                <tr>
+                  <td class="px-6 py-4"><code class="text-nest-400 text-sm">extraProviders</code></td>
+                  <td class="px-6 py-4 text-sm text-void-400">StaticProvider[]?</td>
+                  <td class="px-6 py-4 text-sm text-void-500">-</td>
+                  <td class="px-6 py-4 text-sm text-void-400">Additional providers for SSR</td>
+                </tr>
+                <tr>
+                  <td class="px-6 py-4"><code class="text-nest-400 text-sm">errorHandler</code></td>
+                  <td class="px-6 py-4 text-sm text-void-400">ErrorHandler?</td>
+                  <td class="px-6 py-4 text-sm text-void-500">-</td>
+                  <td class="px-6 py-4 text-sm text-void-400">Custom error handler function</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Cache Options -->
+      <div>
+        <h3 class="text-xl font-semibold text-white mb-6">Cache Options</h3>
+        <div class="bg-void-850 border border-void-700/50 rounded-2xl overflow-hidden">
+          <div class="overflow-x-auto">
+            <table class="w-full text-left">
+              <thead>
+                <tr class="border-b border-void-700/50">
+                  <th class="px-6 py-4 text-sm font-semibold text-void-300">Property</th>
+                  <th class="px-6 py-4 text-sm font-semibold text-void-300">Type</th>
+                  <th class="px-6 py-4 text-sm font-semibold text-void-300">Default</th>
+                  <th class="px-6 py-4 text-sm font-semibold text-void-300">Description</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-void-700/30">
+                <tr>
+                  <td class="px-6 py-4"><code class="text-nest-400 text-sm">expiresIn</code></td>
+                  <td class="px-6 py-4 text-sm text-void-400">number?</td>
+                  <td class="px-6 py-4 text-sm text-void-500">60000</td>
+                  <td class="px-6 py-4 text-sm text-void-400">Cache expiration in milliseconds</td>
+                </tr>
+                <tr>
+                  <td class="px-6 py-4"><code class="text-nest-400 text-sm">storage</code></td>
+                  <td class="px-6 py-4 text-sm text-void-400">CacheStorage?</td>
+                  <td class="px-6 py-4 text-sm text-void-500">InMemoryCacheStorage</td>
+                  <td class="px-6 py-4 text-sm text-void-400">Custom cache storage implementation</td>
+                </tr>
+                <tr>
+                  <td class="px-6 py-4"><code class="text-nest-400 text-sm">keyGenerator</code></td>
+                  <td class="px-6 py-4 text-sm text-void-400">CacheKeyGenerator?</td>
+                  <td class="px-6 py-4 text-sm text-void-500">UrlCacheKeyGenerator</td>
+                  <td class="px-6 py-4 text-sm text-void-400">Custom cache key generator</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA Section -->
+  <section class="py-24 bg-gradient-to-b from-void-900/50 to-void-950">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      <h2 class="text-3xl md:text-4xl font-bold text-white mb-6">Ready to Get Started?</h2>
+      <p class="text-void-400 text-lg mb-10 max-w-2xl mx-auto">
+        Join developers who are already using @lexmata/nestjs-angular-ssr to build blazing-fast Angular applications with NestJS.
+      </p>
+      <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+        <a href="https://www.npmjs.com/package/@lexmata/nestjs-angular-ssr" target="_blank" class="w-full sm:w-auto px-8 py-4 bg-nest-600 hover:bg-nest-500 text-white font-semibold rounded-xl transition-all hover:shadow-lg hover:shadow-nest-600/30 flex items-center justify-center gap-2">
+          <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor"><path d="M0 7.334v8h6.666v1.332H12v-1.332h12v-8H0zm6.666 6.664H5.334v-4H3.999v4H1.335V8.667h5.331v5.331zm4 0v1.336H8.001V8.667h5.334v5.332h-2.669v-.001zm12.001 0h-1.33v-4h-1.336v4h-1.335v-4h-1.33v4h-2.671V8.667h8.002v5.331z"/></svg>
+          View on npm
+        </a>
+        <a href="https://github.com/Lexmata/nestjs-angular-ssr" target="_blank" class="w-full sm:w-auto px-8 py-4 bg-void-800 hover:bg-void-700 text-white font-semibold rounded-xl transition-all border border-void-700 flex items-center justify-center gap-2">
+          <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+          Star on GitHub
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="py-12 border-t border-void-800/50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex flex-col md:flex-row items-center justify-between gap-6">
+        <div class="flex items-center gap-3">
+          <svg class="w-6 h-6 text-nest-500" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+          <span class="font-semibold text-white">@lexmata/nestjs-angular-ssr</span>
+        </div>
+        <div class="flex items-center gap-6 text-sm text-void-400">
+          <a href="https://github.com/Lexmata/nestjs-angular-ssr" target="_blank" class="hover:text-white transition-colors">GitHub</a>
+          <a href="https://www.npmjs.com/package/@lexmata/nestjs-angular-ssr" target="_blank" class="hover:text-white transition-colors">npm</a>
+          <a href="https://github.com/Lexmata/nestjs-angular-ssr/issues" target="_blank" class="hover:text-white transition-colors">Issues</a>
+          <a href="https://github.com/Lexmata/nestjs-angular-ssr/blob/main/LICENSE" target="_blank" class="hover:text-white transition-colors">MIT License</a>
+        </div>
+        <p class="text-sm text-void-500">
+          © 2025 <a href="https://github.com/Lexmata" target="_blank" class="text-void-400 hover:text-white transition-colors">Lexmata LLC</a>
+        </p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Prism.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-typescript.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+
+  <script>
+    // Install tabs
+    function showInstall(type) {
+      // Hide all content
+      document.querySelectorAll('.install-content').forEach(el => el.classList.add('hidden'));
+      // Reset all tabs
+      document.querySelectorAll('.install-tab').forEach(el => {
+        el.classList.remove('text-nest-400', 'bg-void-800/50', 'border-b-2', 'border-nest-500');
+        el.classList.add('text-void-400');
+      });
+      // Show selected content
+      document.getElementById('install-' + type).classList.remove('hidden');
+      // Activate selected tab
+      const tab = document.getElementById('tab-' + type);
+      tab.classList.add('text-nest-400', 'bg-void-800/50', 'border-b-2', 'border-nest-500');
+      tab.classList.remove('text-void-400');
+    }
+
+    // Copy to clipboard
+    function copyCode(text) {
+      navigator.clipboard.writeText(text.trim()).then(() => {
+        // Could add a toast notification here
+        console.log('Copied to clipboard');
+      });
+    }
+
+    // Smooth scroll offset for fixed navbar
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+          const offset = 80;
+          const targetPosition = target.getBoundingClientRect().top + window.pageYOffset - offset;
+          window.scrollTo({
+            top: targetPosition,
+            behavior: 'smooth'
+          });
+        }
+      });
+    });
+  </script>
+</body>
+</html>
+
